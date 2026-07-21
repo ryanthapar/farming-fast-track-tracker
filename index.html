@@ -643,17 +643,19 @@ function render(){
   document.getElementById('updatedAt').textContent = 'Updated ' + new Date().toLocaleString('en-US', {hour:'numeric',minute:'2-digit',month:'short',day:'numeric'});
 }
 
-async function save(){
+const STORAGE_KEY = 'farming101-dashboard-state';
+
+function save(){
   try{
-    await window.storage.set('farming101-dashboard-state', JSON.stringify(state));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   }catch(e){ console.error('save failed', e); }
 }
 
-async function load(){
+function load(){
   try{
-    const res = await window.storage.get('farming101-dashboard-state');
-    if(res && res.value){
-      Object.assign(state, JSON.parse(res.value));
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(raw){
+      Object.assign(state, JSON.parse(raw));
     }
   }catch(e){ /* no saved state yet */ }
   syncInputs();
