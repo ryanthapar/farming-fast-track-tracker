@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Farming 101 – Fast Track | Event Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --sky:#87CEEB;
+    --green-dark:#1F3B23;
+    --green:#2D6E1F;
+    --red:#C0392B;
+    --cream:#F6F2E7;
+    --soil:#E4DCC8;
+    --soil-line:#CFC5A9;
+    --ink:#1B2A20;
+    --gold:#C89B3C;
+    --platinum:#7C8A93;
+    --silver:#A9A9A9;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--cream);
+    color:var(--ink);
+    font-family:'Inter',sans-serif;
+    min-height:100vh;
+  }
+  .wrap{
+    max-width:1100px;
+    margin:0 auto;
+    padding:40px 24px 80px;
+  }
+  header{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-end;
+    flex-wrap:wrap;
+    gap:16px;
+    border-bottom:2px solid var(--green-dark);
+    padding-bottom:20px;
+    margin-bottom:36px;
+  }
+  .eyebrow{
+    font-family:'JetBrains Mono',monospace;
+    font-size:12px;
+    letter-spacing:2px;
+    text-transform:uppercase;
+    color:var(--green);
+    font-weight:700;
+    margin-bottom:6px;
+  }
+  h1{
+    font-family:'Fraunces',serif;
+    font-size:38px;
+    font-weight:600;
+    margin:0;
+    line-height:1.05;
+  }
+  .event-meta{
+    margin-top:8px;
+    font-family:'JetBrains Mono',monospace;
+    font-size:13px;
+    letter-spacing:1px;
+    color:var(--ink);
+  }
+  .updated{
+    font-family:'JetBrains Mono',monospace;
+    font-size:12px;
+    color:#6b7264;
+  }
+  .grid{
+    display:grid;
+    grid-template-columns:1.15fr 1fr;
+    gap:28px;
+  }
+  @media (max-width:820px){
+    .grid{grid-template-columns:1fr;}
+  }
+  .panel{
+    background:#fff;
+    border:1px solid var(--soil-line);
+    border-radius:4px;
+    padding:28px;
+    position:relative;
+    overflow:hidden;
+    margin-bottom:28px;
+  }
+  .panel-title{
+    font-family:'Fraunces',serif;
+    font-size:22px;
+    font-weight:600;
+    margin:0 0 4px;
+  }
+  .panel-sub{
+    font-size:13px;
+    color:#6b7264;
+    margin:0 0 20px;
+  }
+  .bignum{
+    display:flex;
+    align-items:baseline;
+    gap:10px;
+    margin-bottom:18px;
+    flex-wrap:wrap;
+  }
+  .bignum .count{
+    font-family:'JetBrains Mono',monospace;
+    font-size:52px;
+    font-weight:700;
+    color:var(--green-dark);
+    line-height:1;
+  }
+  .bignum .goal{
+    font-family:'JetBrains Mono',monospace;
+    font-size:20px;
+    color:#8a8f7f;
+  }
+  .pct-tag{
+    margin-left:auto;
+    font-family:'JetBrains Mono',monospace;
+    font-size:13px;
+    background:var(--soil);
+    padding:4px 10px;
+    border-radius:999px;
+    color:var(--green-dark);
+    font-weight:700;
+  }
+  .field{
+    display:grid;
+    grid-template-columns:repeat(20,1fr);
+    gap:3px;
+    margin:18px 0 20px;
+    background:var(--soil);
+    padding:10px;
+    border-radius:4px;
+  }
+  .plot{
+    aspect-ratio:1;
+    border-radius:1px;
+    background:var(--soil-line);
+    transition:background .25s ease;
+  }
+  .plot.filled{
+    background:var(--green);
+  }
+  .field-caption{
+    font-size:12px;
+    color:#8a8f7f;
+    font-family:'JetBrains Mono',monospace;
+    margin-bottom:10px;
+  }
+  .controls{
+    display:flex;
+    gap:10px;
+    align-items:center;
+    flex-wrap:wrap;
+  }
+  .controls label{
+    font-size:12px;
+    font-family:'JetBrains Mono',monospace;
+    color:#6b7264;
+    display:flex;
+    flex-direction:column;
+    gap:5px;
+  }
+  input[type=number]{
+    font-family:'JetBrains Mono',monospace;
+    font-size:15px;
+    padding:8px 10px;
+    border:1px solid var(--soil-line);
+    border-radius:4px;
+    width:110px;
+    background:var(--cream);
+    color:var(--ink);
+  }
+  input[type=number]:focus{
+    outline:2px solid var(--sky);
+    outline-offset:1px;
+  }
+  .stepbtn{
+    width:34px;
+    height:34px;
+    border-radius:4px;
+    border:1px solid var(--soil-line);
+    background:var(--cream);
+    font-size:18px;
+    font-weight:700;
+    cursor:pointer;
+    color:var(--green-dark);
+  }
+  .stepbtn:hover{background:var(--soil);}
+  .revenue-box{
+    margin-top:16px;
+    background:var(--cream);
+    border:1px solid var(--soil-line);
+    border-radius:4px;
+    padding:14px 16px;
+  }
+  .money-row{
+    display:flex;
+    justify-content:space-between;
+    font-family:'JetBrains Mono',monospace;
+    font-size:14px;
+    padding:6px 0;
+    border-bottom:1px solid var(--soil);
+  }
+  .money-row.total{
+    font-weight:700;
+    color:var(--green-dark);
+    border-bottom:none;
+    padding-top:10px;
+    font-size:15px;
+  }
+  .money-row .neg{color:var(--red);}
+  .money-row .pos{color:var(--green);}
+  .silo-row{
+    display:flex;
+    gap:24px;
+    align-items:flex-end;
+  }
+  .silo{
+    width:90px;
+    height:220px;
+    border:3px solid var(--green-dark);
+    border-radius:14px 14px 6px 6px;
+    position:relative;
+    overflow:hidden;
+    background:var(--soil);
+    flex-shrink:0;
+  }
+  .silo-fill{
+    position:absolute;
+    bottom:0;
+    left:0;
+    right:0;
+    background:linear-gradient(180deg, var(--sky), #5FAEDB);
+    transition:height .4s ease;
+  }
+  .silo-info{
+    flex:1;
+    min-width:200px;
+  }
+  .tier-table, .expense-table{
+    width:100%;
+    border-collapse:collapse;
+    margin:18px 0;
+    font-size:13px;
+  }
+  .tier-table th, .expense-table th{
+    text-align:left;
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:1px;
+    color:#8a8f7f;
+    padding:0 8px 8px 0;
+    border-bottom:1px solid var(--soil-line);
+  }
+  .tier-table td, .expense-table td{
+    padding:10px 8px 10px 0;
+    border-bottom:1px solid var(--soil);
+    vertical-align:middle;
+  }
+  .tier-dot{
+    width:10px;height:10px;border-radius:50%;
+    display:inline-block;
+    margin-right:8px;
+  }
+  .tier-name, .expense-name{
+    font-weight:600;
+    display:flex;
+    align-items:center;
+  }
+  .tier-table input[type=number], .expense-table input[type=number]{
+    width:64px;
+    padding:6px 8px;
+    font-size:14px;
+  }
+  .expense-table input[type=number].wide{
+    width:90px;
+  }
+  .tier-price, .expense-note{
+    font-family:'JetBrains Mono',monospace;
+    color:#6b7264;
+    font-size:12px;
+  }
+  .tier-subtotal, .expense-subtotal{
+    font-family:'JetBrains Mono',monospace;
+    font-weight:600;
+    text-align:right;
+    white-space:nowrap;
+  }
+  .hst-note{
+    font-size:11px;
+    color:#8a8f7f;
+    font-family:'JetBrains Mono',monospace;
+  }
+  .hst-input-row{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    margin-bottom:14px;
+    flex-wrap:wrap;
+  }
+  .hst-input-row label{
+    font-size:12px;
+    font-family:'JetBrains Mono',monospace;
+    color:#6b7264;
+  }
+  .hst-input-row input{
+    width:70px;
+  }
+  .status-line{
+    margin-top:18px;
+    font-size:13px;
+    padding:10px 12px;
+    border-radius:4px;
+    font-family:'Inter',sans-serif;
+  }
+  .status-line.covered{background:#e7f3e1;color:var(--green-dark);}
+  .status-line.short{background:#fbeceb;color:var(--red);}
+  .full-panel{
+    grid-column:1 / -1;
+  }
+  .save-banner{
+    background:#fff8e6;
+    border:1px solid #e8d8a8;
+    color:#6b5a1f;
+    font-size:12px;
+    padding:10px 14px;
+    border-radius:4px;
+    margin-bottom:24px;
+    font-family:'Inter',sans-serif;
+  }
+  footer{
+    text-align:center;
+    margin-top:40px;
+    font-size:11px;
+    color:#a3a89a;
+    font-family:'JetBrains Mono',monospace;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <div class="eyebrow">Let's Farm · Live Event Dashboard</div>
+      <h1>Farming 101 – Fast Track</h1>
+      <div class="event-meta">September 22, 2026 · 10 AM – 4 PM</div>
+    </div>
+    <div class="updated" id="updatedAt">—</div>
+  </header>
+
+  <div class="save-banner">To keep your numbers saved between visits, publish this artifact, then always come back to it from the <strong>Artifacts</strong> section in your sidebar (not by reopening this chat).</div>
+
+  <div class="hst-input-row">
+    <label for="hstInput">HST rate (%)</label>
+    <input type="number" id="hstInput" value="13" min="0" step="0.5">
+    <span class="hst-note">applied to registration fees, sponsorship, and expenses</span>
+  </div>
+
+  <div class="grid">
+    <div class="panel">
+      <p class="panel-title">Agents registered</p>
+      <p class="panel-sub">Every plot is one agent. Fill the field.</p>
+      <div class="bignum">
+        <span class="count" id="agentCount">5</span>
+        <span class="goal">/ <span id="agentGoal">300</span></span>
+        <span class="pct-tag" id="agentPct">2%</span>
+      </div>
+      <div class="field-caption">300 plots — one per registered agent</div>
+      <div class="field" id="field"></div>
+      <div class="controls">
+        <div class="stepbtn" id="agentMinus">−</div>
+        <label>Registered
+          <input type="number" id="agentInput" value="5" min="0">
+        </label>
+        <div class="stepbtn" id="agentPlus">+</div>
+        <label>Goal
+          <input type="number" id="agentGoalInput" value="300" min="1">
+        </label>
+        <label>Fee / agent ($)
+          <input type="number" id="feeInput" value="1000" min="0" step="50">
+        </label>
+      </div>
+      <div class="revenue-box">
+        <div class="money-row"><span>Registration subtotal</span><span id="regSubtotal">$0</span></div>
+        <div class="money-row"><span>HST</span><span id="regHst">$0</span></div>
+        <div class="money-row total"><span>Registration revenue (incl. HST)</span><span id="regTotal">$0</span></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <p class="panel-title">Sponsorship silo</p>
+      <p class="panel-sub">Raised vs. what the event costs to run.</p>
+
+      <table class="tier-table">
+        <thead>
+          <tr><th>Tier</th><th># sponsors</th><th>Price</th><th style="text-align:right;">Subtotal</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="tier-name"><span class="tier-dot" style="background:var(--platinum);"></span>Platinum</td>
+            <td><input type="number" id="platinumCount" value="0" min="0"></td>
+            <td class="tier-price">$5,000</td>
+            <td class="tier-subtotal" id="platinumSubtotal">$0</td>
+          </tr>
+          <tr>
+            <td class="tier-name"><span class="tier-dot" style="background:var(--gold);"></span>Gold</td>
+            <td><input type="number" id="goldCount" value="0" min="0"></td>
+            <td class="tier-price">$3,000</td>
+            <td class="tier-subtotal" id="goldSubtotal">$0</td>
+          </tr>
+          <tr>
+            <td class="tier-name"><span class="tier-dot" style="background:var(--silver);"></span>Silver</td>
+            <td><input type="number" id="silverCount" value="0" min="0"></td>
+            <td class="tier-price">$1,500</td>
+            <td class="tier-subtotal" id="silverSubtotal">$0</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="silo-row">
+        <div class="silo">
+          <div class="silo-fill" id="siloFill" style="height:0%"></div>
+        </div>
+        <div class="silo-info">
+          <div class="money-row"><span>Sponsorship subtotal</span><span id="sponSubtotal">$0</span></div>
+          <div class="money-row"><span>HST</span><span id="sponHst">$0</span></div>
+          <div class="money-row total"><span>Sponsorship raised (incl. HST)</span><span id="sponTotal">$0</span></div>
+        </div>
+      </div>
+
+      <div class="revenue-box">
+        <div class="money-row"><span>Total event cost</span><span id="costDisplay">$0</span></div>
+        <div class="money-row"><span>Sponsorship raised</span><span id="raisedDisplay">$0</span></div>
+        <div class="money-row total"><span id="deltaLabel">Remaining</span><span id="deltaDisplay">$0</span></div>
+      </div>
+      <div class="status-line short" id="statusLine">Fill in expenses below to see how far sponsorship has to go.</div>
+    </div>
+
+    <div class="panel full-panel">
+      <p class="panel-title">Event expenses</p>
+      <p class="panel-sub">Feeds the total event cost above.</p>
+
+      <table class="expense-table">
+        <thead>
+          <tr><th>Item</th><th>Detail</th><th style="text-align:right;">Subtotal</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="expense-name">Hall</td>
+            <td><input type="number" class="wide" id="hallCost" value="1500" min="0" step="50"> flat</td>
+            <td class="expense-subtotal" id="hallSubtotal">$1,500</td>
+          </tr>
+          <tr>
+            <td class="expense-name">Food</td>
+            <td>
+              <input type="number" id="foodRate" value="30" min="0" step="1"> / person ×
+              <input type="number" id="foodCount" value="5" min="0">
+              <div class="expense-note">defaults to agents registered — adjust if headcount differs</div>
+            </td>
+            <td class="expense-subtotal" id="foodSubtotal">$150</td>
+          </tr>
+          <tr>
+            <td class="expense-name">AV</td>
+            <td><input type="number" class="wide" id="avCost" value="0" min="0" step="50"></td>
+            <td class="expense-subtotal" id="avSubtotal">$0</td>
+          </tr>
+          <tr>
+            <td class="expense-name">Transportation of doors</td>
+            <td><input type="number" class="wide" id="doorsCost" value="0" min="0" step="50"></td>
+            <td class="expense-subtotal" id="doorsSubtotal">$0</td>
+          </tr>
+          <tr>
+            <td class="expense-name">Rita (all day)</td>
+            <td>
+              <input type="number" id="ritaHours" value="12" min="0" step="1"> hrs ×
+              <input type="number" id="ritaRate" value="18" min="0" step="1"> /hr
+            </td>
+            <td class="expense-subtotal" id="ritaSubtotal">$216</td>
+          </tr>
+          <tr>
+            <td class="expense-name">Photographer</td>
+            <td><input type="number" class="wide" id="photoCost" value="0" min="0" step="50"></td>
+            <td class="expense-subtotal" id="photoSubtotal">$0</td>
+          </tr>
+          <tr>
+            <td class="expense-name">Books</td>
+            <td><input type="number" class="wide" id="booksCost" value="0" min="0" step="25"></td>
+            <td class="expense-subtotal" id="booksSubtotal">$0</td>
+          </tr>
+          <tr>
+            <td class="expense-name">Paddles</td>
+            <td><input type="number" class="wide" id="paddlesCost" value="0" min="0" step="25"></td>
+            <td class="expense-subtotal" id="paddlesSubtotal">$0</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="revenue-box">
+        <div class="money-row"><span>Expenses subtotal</span><span id="expSubtotal">$0</span></div>
+        <div class="money-row"><span>HST</span><span id="expHst">$0</span></div>
+        <div class="money-row total"><span>Total event cost (incl. HST)</span><span id="expTotal">$0</span></div>
+      </div>
+    </div>
+  </div>
+
+  <footer>Numbers save automatically once this artifact is published.</footer>
+</div>
+
+<script>
+const TIER_PRICES = { platinum: 5000, gold: 3000, silver: 1500 };
+
+const state = {
+  agents: 5,
+  agentGoal: 300,
+  fee: 1000,
+  hst: 13,
+  platinumCount: 0,
+  goldCount: 0,
+  silverCount: 0,
+  hallCost: 1500,
+  foodRate: 30,
+  foodCount: 5,
+  avCost: 0,
+  doorsCost: 0,
+  ritaHours: 12,
+  ritaRate: 18,
+  photoCost: 0,
+  booksCost: 0,
+  paddlesCost: 0,
+  foodCountManuallySet: false
+};
+
+function fmtMoney(n){
+  return '$' + Number(n).toLocaleString('en-US', {maximumFractionDigits:0});
+}
+
+function renderField(){
+  const field = document.getElementById('field');
+  field.innerHTML = '';
+  const goal = Math.max(1, state.agentGoal);
+  const filled = Math.min(state.agents, goal);
+  const cellCount = 300;
+  for(let i=0;i<cellCount;i++){
+    const div = document.createElement('div');
+    div.className = 'plot';
+    const threshold = (i / cellCount) * goal;
+    if(threshold < filled){
+      div.className += ' filled';
+    }
+    field.appendChild(div);
+  }
+}
+
+function render(){
+  document.getElementById('agentCount').textContent = state.agents;
+  document.getElementById('agentGoal').textContent = state.agentGoal;
+  const pct = state.agentGoal > 0 ? Math.round((state.agents/state.agentGoal)*100) : 0;
+  document.getElementById('agentPct').textContent = pct + '%';
+  renderField();
+
+  const hstRate = state.hst / 100;
+
+  const regSub = state.agents * state.fee;
+  const regHstAmt = regSub * hstRate;
+  document.getElementById('regSubtotal').textContent = fmtMoney(regSub);
+  document.getElementById('regHst').textContent = fmtMoney(regHstAmt);
+  document.getElementById('regTotal').textContent = fmtMoney(regSub + regHstAmt);
+
+  const platSub = state.platinumCount * TIER_PRICES.platinum;
+  const goldSub = state.goldCount * TIER_PRICES.gold;
+  const silvSub = state.silverCount * TIER_PRICES.silver;
+  document.getElementById('platinumSubtotal').textContent = fmtMoney(platSub);
+  document.getElementById('goldSubtotal').textContent = fmtMoney(goldSub);
+  document.getElementById('silverSubtotal').textContent = fmtMoney(silvSub);
+
+  const sponSub = platSub + goldSub + silvSub;
+  const sponHstAmt = sponSub * hstRate;
+  const sponTotal = sponSub + sponHstAmt;
+  document.getElementById('sponSubtotal').textContent = fmtMoney(sponSub);
+  document.getElementById('sponHst').textContent = fmtMoney(sponHstAmt);
+  document.getElementById('sponTotal').textContent = fmtMoney(sponTotal);
+
+  if(!state.foodCountManuallySet){
+    state.foodCount = state.agents;
+  }
+  const hallSub = state.hallCost;
+  const foodSub = state.foodRate * state.foodCount;
+  const avSub = state.avCost;
+  const doorsSub = state.doorsCost;
+  const ritaSub = state.ritaHours * state.ritaRate;
+  const photoSub = state.photoCost;
+  const booksSub = state.booksCost;
+  const paddlesSub = state.paddlesCost;
+
+  document.getElementById('hallSubtotal').textContent = fmtMoney(hallSub);
+  document.getElementById('foodSubtotal').textContent = fmtMoney(foodSub);
+  document.getElementById('avSubtotal').textContent = fmtMoney(avSub);
+  document.getElementById('doorsSubtotal').textContent = fmtMoney(doorsSub);
+  document.getElementById('ritaSubtotal').textContent = fmtMoney(ritaSub);
+  document.getElementById('photoSubtotal').textContent = fmtMoney(photoSub);
+  document.getElementById('booksSubtotal').textContent = fmtMoney(booksSub);
+  document.getElementById('paddlesSubtotal').textContent = fmtMoney(paddlesSub);
+
+  const expSub = hallSub + foodSub + avSub + doorsSub + ritaSub + photoSub + booksSub + paddlesSub;
+  const expHstAmt = expSub * hstRate;
+  const expTotal = expSub + expHstAmt;
+  document.getElementById('expSubtotal').textContent = fmtMoney(expSub);
+  document.getElementById('expHst').textContent = fmtMoney(expHstAmt);
+  document.getElementById('expTotal').textContent = fmtMoney(expTotal);
+
+  document.getElementById('costDisplay').textContent = fmtMoney(expTotal);
+  document.getElementById('raisedDisplay').textContent = fmtMoney(sponTotal);
+  const delta = expTotal - sponTotal;
+  const deltaLabel = document.getElementById('deltaLabel');
+  const deltaDisplay = document.getElementById('deltaDisplay');
+  const statusLine = document.getElementById('statusLine');
+  if(delta <= 0 && expTotal > 0){
+    deltaLabel.textContent = 'Surplus';
+    deltaDisplay.textContent = fmtMoney(Math.abs(delta));
+    deltaDisplay.className = 'pos';
+    statusLine.textContent = 'Fully covered' + (delta < 0 ? ` — ${fmtMoney(Math.abs(delta))} over` : '') + '. Sponsorship has covered the event.';
+    statusLine.className = 'status-line covered';
+  } else {
+    deltaLabel.textContent = 'Remaining';
+    deltaDisplay.textContent = fmtMoney(Math.max(delta,0));
+    deltaDisplay.className = 'neg';
+    statusLine.textContent = expTotal > 0
+      ? `${fmtMoney(Math.max(delta,0))} more in sponsorship needed to fully cover the event.`
+      : 'Fill in expenses below to see how far sponsorship has to go.';
+    statusLine.className = 'status-line short';
+  }
+
+  const siloPct = expTotal > 0 ? Math.min(100, (sponTotal/expTotal)*100) : 0;
+  document.getElementById('siloFill').style.height = siloPct + '%';
+
+  document.getElementById('updatedAt').textContent = 'Updated ' + new Date().toLocaleString('en-US', {hour:'numeric',minute:'2-digit',month:'short',day:'numeric'});
+}
+
+async function save(){
+  try{
+    await window.storage.set('farming101-dashboard-state', JSON.stringify(state));
+  }catch(e){ console.error('save failed', e); }
+}
+
+async function load(){
+  try{
+    const res = await window.storage.get('farming101-dashboard-state');
+    if(res && res.value){
+      Object.assign(state, JSON.parse(res.value));
+    }
+  }catch(e){ /* no saved state yet */ }
+  syncInputs();
+  render();
+}
+
+function syncInputs(){
+  document.getElementById('agentInput').value = state.agents;
+  document.getElementById('agentGoalInput').value = state.agentGoal;
+  document.getElementById('feeInput').value = state.fee;
+  document.getElementById('hstInput').value = state.hst;
+  document.getElementById('platinumCount').value = state.platinumCount;
+  document.getElementById('goldCount').value = state.goldCount;
+  document.getElementById('silverCount').value = state.silverCount;
+  document.getElementById('hallCost').value = state.hallCost;
+  document.getElementById('foodRate').value = state.foodRate;
+  document.getElementById('foodCount').value = state.foodCount;
+  document.getElementById('avCost').value = state.avCost;
+  document.getElementById('doorsCost').value = state.doorsCost;
+  document.getElementById('ritaHours').value = state.ritaHours;
+  document.getElementById('ritaRate').value = state.ritaRate;
+  document.getElementById('photoCost').value = state.photoCost;
+  document.getElementById('booksCost').value = state.booksCost;
+  document.getElementById('paddlesCost').value = state.paddlesCost;
+}
+
+document.getElementById('agentInput').addEventListener('input', e=>{
+  state.agents = Math.max(0, parseInt(e.target.value)||0);
+  if(!state.foodCountManuallySet){ document.getElementById('foodCount').value = state.agents; }
+  render(); save();
+});
+document.getElementById('agentGoalInput').addEventListener('input', e=>{
+  state.agentGoal = Math.max(1, parseInt(e.target.value)||1);
+  render(); save();
+});
+document.getElementById('agentMinus').addEventListener('click', ()=>{
+  state.agents = Math.max(0, state.agents-1);
+  syncInputs(); render(); save();
+});
+document.getElementById('agentPlus').addEventListener('click', ()=>{
+  state.agents = state.agents+1;
+  syncInputs(); render(); save();
+});
+document.getElementById('feeInput').addEventListener('input', e=>{
+  state.fee = Math.max(0, parseFloat(e.target.value)||0);
+  render(); save();
+});
+document.getElementById('hstInput').addEventListener('input', e=>{
+  state.hst = Math.max(0, parseFloat(e.target.value)||0);
+  render(); save();
+});
+document.getElementById('platinumCount').addEventListener('input', e=>{
+  state.platinumCount = Math.max(0, parseInt(e.target.value)||0);
+  render(); save();
+});
+document.getElementById('goldCount').addEventListener('input', e=>{
+  state.goldCount = Math.max(0, parseInt(e.target.value)||0);
+  render(); save();
+});
+document.getElementById('silverCount').addEventListener('input', e=>{
+  state.silverCount = Math.max(0, parseInt(e.target.value)||0);
+  render(); save();
+});
+document.getElementById('hallCost').addEventListener('input', e=>{
+  state.hallCost = Math.max(0, parseFloat(e.target.value)||0);
+  render(); save();
+});
+document.getElementById('foodRate').addEventListener('input', e=>{
+  state.foodRate = Math.max(0, parseFloat(e.target.value)||0);
+  render(); save();
+});
+document.getElementById('foodCount').addEventListener('input', e=>{
+  state.foodCount = Math.max(0, parseInt(e.target.value)||0);
+  state.foodCountManuallySet = true;
+  render(); save();
+});
+document.getElementById('avCost').addEventListener('input', e=>{
+  state.avCost = Math.max(0, parseFloat(e.target.value)||0);
+  render(); save();
+});
+document.getElementById('doorsCost').addEventListener('input', e=>{
+  state.doorsCost = Math.max(0, parseFloat(e.target.value)||0);
+  render(); save();
+});
+document.getElementById('ritaHours').addEventListener('input', e=>{
+  state.ritaHours = Math.max(0, parseFloat(e.target.value)||0);
+  render(); save();
+});
+document.getElementById('ritaRate').addEventListener('input', e=>{
+  state.ritaRate = Math.max(0, parseFloat(e.target.value)||0);
+  render(); save();
+});
+document.getElementById('photoCost').addEventListener('input', e=>{
+  state.photoCost = Math.max(0, parseFloat(e.target.value)||0);
+  render(); save();
+});
+document.getElementById('booksCost').addEventListener('input', e=>{
+  state.booksCost = Math.max(0, parseFloat(e.target.value)||0);
+  render(); save();
+});
+document.getElementById('paddlesCost').addEventListener('input', e=>{
+  state.paddlesCost = Math.max(0, parseFloat(e.target.value)||0);
+  render(); save();
+});
+
+load();
+</script>
+</body>
+</html>
