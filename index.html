@@ -499,6 +499,15 @@
             <td><input type="number" class="wide" id="paddlesCost" value="0" min="0" step="25"></td>
             <td class="expense-subtotal" id="paddlesSubtotal">$0</td>
           </tr>
+          <tr>
+            <td class="expense-name">Square processing</td>
+            <td>
+              <input type="number" id="squareRate" value="31.94" min="0" step="0.01"> / agent ×
+              <span id="squareCountDisplay">5</span>
+              <div class="expense-note">commission per agent registered</div>
+            </td>
+            <td class="expense-subtotal" id="squareSubtotal">$0</td>
+          </tr>
         </tbody>
       </table>
 
@@ -534,6 +543,7 @@ const state = {
   photoCost: 0,
   booksCost: 0,
   paddlesCost: 0,
+  squareRate: 31.94,
   foodCountManuallySet: false
 };
 
@@ -598,6 +608,7 @@ function render(){
   const photoSub = state.photoCost;
   const booksSub = state.booksCost;
   const paddlesSub = state.paddlesCost;
+  const squareSub = state.squareRate * state.agents;
 
   document.getElementById('hallSubtotal').textContent = fmtMoney(hallSub);
   document.getElementById('foodSubtotal').textContent = fmtMoney(foodSub);
@@ -607,8 +618,10 @@ function render(){
   document.getElementById('photoSubtotal').textContent = fmtMoney(photoSub);
   document.getElementById('booksSubtotal').textContent = fmtMoney(booksSub);
   document.getElementById('paddlesSubtotal').textContent = fmtMoney(paddlesSub);
+  document.getElementById('squareCountDisplay').textContent = state.agents;
+  document.getElementById('squareSubtotal').textContent = fmtMoney(squareSub);
 
-  const expSub = hallSub + foodSub + avSub + doorsSub + ritaSub + photoSub + booksSub + paddlesSub;
+  const expSub = hallSub + foodSub + avSub + doorsSub + ritaSub + photoSub + booksSub + paddlesSub + squareSub;
   const expHstAmt = expSub * hstRate;
   const expTotal = expSub + expHstAmt;
   document.getElementById('expSubtotal').textContent = fmtMoney(expSub);
@@ -680,6 +693,7 @@ function syncInputs(){
   document.getElementById('photoCost').value = state.photoCost;
   document.getElementById('booksCost').value = state.booksCost;
   document.getElementById('paddlesCost').value = state.paddlesCost;
+  document.getElementById('squareRate').value = state.squareRate;
 }
 
 document.getElementById('agentInput').addEventListener('input', e=>{
@@ -758,6 +772,10 @@ document.getElementById('booksCost').addEventListener('input', e=>{
 });
 document.getElementById('paddlesCost').addEventListener('input', e=>{
   state.paddlesCost = Math.max(0, parseFloat(e.target.value)||0);
+  render(); save();
+});
+document.getElementById('squareRate').addEventListener('input', e=>{
+  state.squareRate = Math.max(0, parseFloat(e.target.value)||0);
   render(); save();
 });
 
