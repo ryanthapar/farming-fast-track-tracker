@@ -508,6 +508,11 @@
             </td>
             <td class="expense-subtotal" id="squareSubtotal">$0</td>
           </tr>
+          <tr>
+            <td class="expense-name">Facebook ads</td>
+            <td><input type="number" class="wide" id="fbAdsCost" value="0" min="0" step="50"></td>
+            <td class="expense-subtotal" id="fbAdsSubtotal">$0</td>
+          </tr>
         </tbody>
       </table>
 
@@ -544,6 +549,7 @@ const state = {
   booksCost: 0,
   paddlesCost: 0,
   squareRate: 31.94,
+  fbAdsCost: 0,
   foodCountManuallySet: false
 };
 
@@ -609,6 +615,7 @@ function render(){
   const booksSub = state.booksCost;
   const paddlesSub = state.paddlesCost;
   const squareSub = state.squareRate * state.agents;
+  const fbAdsSub = state.fbAdsCost;
 
   document.getElementById('hallSubtotal').textContent = fmtMoney(hallSub);
   document.getElementById('foodSubtotal').textContent = fmtMoney(foodSub);
@@ -620,8 +627,9 @@ function render(){
   document.getElementById('paddlesSubtotal').textContent = fmtMoney(paddlesSub);
   document.getElementById('squareCountDisplay').textContent = state.agents;
   document.getElementById('squareSubtotal').textContent = fmtMoney(squareSub);
+  document.getElementById('fbAdsSubtotal').textContent = fmtMoney(fbAdsSub);
 
-  const expSub = hallSub + foodSub + avSub + doorsSub + ritaSub + photoSub + booksSub + paddlesSub + squareSub;
+  const expSub = hallSub + foodSub + avSub + doorsSub + ritaSub + photoSub + booksSub + paddlesSub + squareSub + fbAdsSub;
   const expHstAmt = expSub * hstRate;
   const expTotal = expSub + expHstAmt;
   document.getElementById('expSubtotal').textContent = fmtMoney(expSub);
@@ -694,6 +702,7 @@ function syncInputs(){
   document.getElementById('booksCost').value = state.booksCost;
   document.getElementById('paddlesCost').value = state.paddlesCost;
   document.getElementById('squareRate').value = state.squareRate;
+  document.getElementById('fbAdsCost').value = state.fbAdsCost;
 }
 
 document.getElementById('agentInput').addEventListener('input', e=>{
@@ -776,6 +785,10 @@ document.getElementById('paddlesCost').addEventListener('input', e=>{
 });
 document.getElementById('squareRate').addEventListener('input', e=>{
   state.squareRate = Math.max(0, parseFloat(e.target.value)||0);
+  render(); save();
+});
+document.getElementById('fbAdsCost').addEventListener('input', e=>{
+  state.fbAdsCost = Math.max(0, parseFloat(e.target.value)||0);
   render(); save();
 });
 
